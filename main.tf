@@ -41,7 +41,7 @@ resource "aws_instance" "web" {
   connection {
     type        = "ssh"
     user        = "ubuntu" # Default username for Ubuntu
-    private_key = file("C:\\Users\\ABC\\Downloads\\bhoot.pem") # Path to your private key
+    private_key = file("path/to/private-key.pem") # Adjust this path accordingly
     host        = self.public_ip
   }
 
@@ -53,7 +53,6 @@ resource "aws_instance" "web" {
       "sudo apt install -y apache2", # Installing Apache on Ubuntu
       "sudo systemctl start apache2", # Start Apache service
       "sudo systemctl enable apache2", # Enable Apache to start on boot
-      # Write to index.html with sudo privileges
       "echo 'Babu tum tension na lo aise hi python application deploy hogi' | sudo tee /var/www/html/index.html > /dev/null"
     ]
   }
@@ -66,12 +65,17 @@ resource "aws_instance" "web" {
 # Create S3 Bucket
 resource "aws_s3_bucket" "web_bucket" {
   bucket = "bhootni" # Replace with your unique bucket name
-  acl    = "private"
 
   tags = {
     Name        = "WebServerBucket"
     Environment = "Production"
   }
+}
+
+# Use aws_s3_bucket_acl to manage bucket ACL instead
+resource "aws_s3_bucket_acl" "web_bucket_acl" {
+  bucket = aws_s3_bucket.web_bucket.bucket
+  acl    = "private"
 }
 
 output "public_ip" {
