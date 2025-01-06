@@ -1,60 +1,72 @@
-name: Deploy Infrastructure and Application
+name: Deploy Web Server and Upload to S3
 
 on:
   push:
     branches:
-      - main
-
-permissions:
-  id-token: write
-  contents: read
+      - main  # Change this to the branch you want to trigger the workflow on
 
 jobs:
   deploy:
-    name: Deploy Infrastructure and Application
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      # Step 1: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: '1.4.0'
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-
+      # Step 3: Configure AWS Credentials using OIDC (Optional, if you're using OIDC)
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::120569613442:role/my_oidc_for_github_action
+          role-to-assume: arn:aws:iam::120569613442:role/oidc  # Adjust your role ARN here
           role-session-name: GitHubActionsOIDC
           aws-region: us-east-1
 
-      - name: Install Dependencies
+      # Step 4: Set private key for SSH from GitHub Secrets
+      - name: Set private key for SSH
+        run: |
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > bhoot.pem
+          chmod 600 bhoot.pem
+
+      # Step 5: Install Dependencies (Optional, if you need to install any dependencies)
+      - name: Install dependencies
         run: |
           echo "Installing dependencies..."
-          npm install
+          npm install  # Change this if you have specific dependencies to install
 
-      - name: Build the application
+      # Step 6: Terraform Init
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 7: Terraform Plan
+      - name: Terraform Plan
+        run: terraform plan
+
+      # Step 8: Terraform Apply (Deploy Infrastructure)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      # Step 9: Build the application (if you have an application to build)
+      - name: Build application
         run: |
           echo "Building application..."
-          npm run build  # Replace with your actual build command
+          npm run build  # Change this to your actual build command
 
+      # Step 10: Upload build files to S3 bucket
       - name: Upload files to S3
         run: |
           echo "Uploading files to S3..."
           aws s3 cp ./build/ s3://bhootni/ --recursive  # Replace with your build directory
 
+      # Step 11: Verify the deployment (List S3 Bucket contents to verify upload)
       - name: Verify Deployment
         run: |
           echo "Verifying deployment..."
           aws s3 ls s3://bhootni/
+
