@@ -20,11 +20,11 @@ jobs:
         with:
           terraform_version: '1.4.0'
 
-      # Step 3: Configure AWS Credentials using OIDC (Optional, if you're using OIDC)
+      # Step 3: Configure AWS Credentials using OIDC
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::120569613442:role/oidc  # Adjust your role ARN here
+          role-to-assume: arn:aws:iam::120569613442:role/my_oidc_for_github_action  # Adjust your role ARN here
           role-session-name: GitHubActionsOIDC
           aws-region: us-east-1
 
@@ -68,5 +68,4 @@ jobs:
       - name: Verify Deployment
         run: |
           echo "Verifying deployment..."
-          aws s3 ls s3://bhootni/
-
+          aws s3 ls s3://bhootni/ # Verify files are uploaded
