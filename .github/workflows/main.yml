@@ -35,10 +35,10 @@ jobs:
         run: |
           echo "Deploying application..."
           # Example AWS CLI command
-          aws s3 cp ./app s3://pagaliya --recursive
+          aws s3 cp ./app s3://bhootni --recursive
 
       - name: Verify Deployment
         run: |
           echo "Verifying deployment..."
           # Example verification
-          aws s3 ls s3://pagaliya
+          aws s3 ls s3://bhootni
