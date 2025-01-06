@@ -1,0 +1,44 @@
+name: Deploy with OIDC
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to AWS using OIDC
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::120569613442:role/oidc
+          role-session-name: GitHubActionsOIDC
+          aws-region: us-east-1
+
+      - name: Install Dependencies
+        run: |
+          echo "Installing dependencies..."
+          # Example for Node.js projects
+          npm install
+
+      - name: Deploy Application
+        run: |
+          echo "Deploying application..."
+          # Example AWS CLI command
+          aws s3 cp ./app s3://pagaliya --recursive
+
+      - name: Verify Deployment
+        run: |
+          echo "Verifying deployment..."
+          # Example verification
+          aws s3 ls s3://pagaliya
