@@ -3,7 +3,7 @@ name: Deploy Web Server and Upload to S3
 on:
   push:
     branches:
-      - main  # Trigger workflow on push to main branch
+      - main  # Trigger workflow on push to the main branch
 
 jobs:
   deploy:
@@ -22,13 +22,11 @@ jobs:
 
       # Step 3: Configure AWS Credentials using Access Key and Secret Key
       - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
-        run: |
-          echo "AWS credentials configured."
-          aws sts get-caller-identity  # Validate credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
 
       # Step 4: Debug Directory Structure
       - name: Debug Directory Structure
@@ -78,12 +76,8 @@ jobs:
           echo "Listing build directory contents..."
           ls -la ./build || echo "Build directory not found."
 
-      # Step 11: Upload build files to S3 bucket
+      # Step 11: Upload build files to S3
       - name: Upload files to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: |
           echo "Uploading files to S3..."
           if [ -d "./build" ]; then
@@ -94,10 +88,6 @@ jobs:
 
       # Step 12: Verify the deployment (List S3 Bucket contents to verify upload)
       - name: Verify Deployment
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: |
           echo "Verifying deployment..."
           aws s3 ls s3://bhootni/
