@@ -20,13 +20,14 @@ jobs:
         with:
           terraform_version: '1.4.0'
 
-      # Step 3: Configure AWS Credentials using OIDC
-      - name: Configure AWS Credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::120569613442:role/my_oidc_for_github_action
-          role-session-name: GitHubActionsOIDC
-          aws-region: us-east-1
+      # Step 3: Configure AWS Credentials using Access Key and Secret Key
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+        run: |
+          echo "AWS credentials configured."
 
       # Step 4: Set private key for SSH from GitHub Secrets
       - name: Set private key for SSH
@@ -61,6 +62,8 @@ jobs:
       # Step 10: Upload build files to S3 bucket
       - name: Upload files to S3
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
         run: |
           echo "Uploading files to S3..."
@@ -69,6 +72,8 @@ jobs:
       # Step 11: Verify the deployment (List S3 Bucket contents to verify upload)
       - name: Verify Deployment
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
         run: |
           echo "Verifying deployment..."
