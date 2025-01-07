@@ -38,13 +38,7 @@ resource "aws_instance" "web" {
   key_name      = "bhoot" # Replace with your key pair name
   security_groups = [aws_security_group.web_sg.name]
 
-  connection {
-    type        = "ssh"
-    user        = "ubuntu" # Default username for Ubuntu
-    private_key = file("path/to/private-key.pem") # Adjust this path accordingly
-    host        = self.public_ip
-  }
-
+  
   provisioner "remote-exec" {
     inline = [
       "set -x", # Enable debugging
